@@ -1,0 +1,190 @@
+openapi: 3.0.3
+info:
+  title: AuthApi
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+  - url: https://superails.com
+paths:
+  /api/v1/companies:
+    get:
+      summary: Get a list of companies for the authenticated user
+      operationId: getCompanies
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: A list of companies for the authenticated user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Company'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      summary: Create a new company for the authenticated user
+      operationId: createCompany
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: The company to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyCreate'
+      responses:
+        '201':
+          description: The created company
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/companies/{companyId}:
+    parameters:
+      - in: path
+        name: companyId
+        required: true
+        description: The ID of the company to retrieve, update, or delete
+        schema:
+          type: integer
+    get:
+      summary: Get a company by ID
+      operationId: getCompanyById
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: The company with the given ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      summary: Update a company by ID
+      operationId: updateCompanyById
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: The updated company data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyCreate'
+      responses:
+        '200':
+          description: The updated company
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete a company by ID
+      operationId: deleteCompanyById
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: The company was successfully deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    Company:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The unique identifier for the company
+        name:
+          type: string
+          description: The name of the company
+        address:
+          type: string
+          description: The address of the company
+        ey:
+          type: integer
+          description: The ey (eyewear) identifier of the company
+        user_id:
+          type: integer
+          description: The ID of the user who created the company
+      required:
+        - id
+        - name
+        - user_id
+    CompanyCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the company
+        address:
+          type: string
+          description: The address of the company
+        ey:
+          type: integer
+          description: The ey (eyewear) identifier of the company
+      required:
+        - name
+      additionalProperties: false
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    BadRequest:
+      description: Invalid request body or parameters
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: A description of the error
+            required:
+              - message
+    Unauthorized:
+      description: Authentication credentials were missing or invalid
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: A description of the error
+            required:
+              - message
+    NotFound:
+      description: Record not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: A description of the error
+            required:
+              - message
